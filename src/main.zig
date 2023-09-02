@@ -120,8 +120,17 @@ fn events_process() void {
 }
 
 fn game_update() void {
+    if (key_get(Key.up)) {
+        p.y -= 1;
+    }
     if (key_get(Key.down)) {
         p.y += 1;
+    }
+    if (key_get(Key.left)) {
+        p.x -= 1;
+    }
+    if (key_get(Key.right)) {
+        p.x += 1;
     }
 }
 
