@@ -3,6 +3,41 @@ const c = @cImport({
     @cInclude("SDL2/SDL.h");
 });
 
+const Key = enum { up, down, left, right, confirm, num_keys };
+
+const Dir = enum(u32) {
+    vbit = 0b0010, //“vertical”??
+    hbit = 0b1000, //“horizontal”??
+    up = 0b0010,
+    down = 0b0011,
+    left = 0b1000,
+    right = 0b1100,
+    upup = 0b0010_0010,
+    downdown = 0b0011_0011,
+    leftleft = 0b1000_1000,
+    rightright = 0b1100_1100,
+    upright = 0b0010_1100,
+    upleft = 0b0010_1000,
+    downright = 0b0011_1100,
+    downleft = 0b0011_1000,
+    leftup = 0b1000_0010,
+    leftdown = 0b1000_0011,
+    rightup = 0b1100_0010,
+    rightdown = 0b1100_0011,
+};
+
+const KeyState = enum(u8) { off = 0b00, up = 0b01, pressed = 0b10, held = 0b11, active_bit = 0b10 };
+
+var g_key_states: [Key.num_keys]u8 = undefined;
+var testvar: i32 = c.SDL_SCANCODE_UP;
+var g_key_map: [Key.num_keys]i32 = {
+    //     c.SDL_SCANCODE_UP,
+    //     c.SDL_SCANCODE_DOWN,
+    //     c.SDL_SCANCODE_LEFT,
+    //     c.SDL_SCANCODE_RIGHT,
+    //     c.SDL_SCANCODE_RETURN,
+};
+
 var p = c.SDL_Point{ .x = 0, .y = 0 };
 
 const k_screen_width: i32 = 320;
