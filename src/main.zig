@@ -29,13 +29,13 @@ const Dir = enum(u32) {
 const KeyState = enum(u8) { off = 0b00, up = 0b01, pressed = 0b10, held = 0b11, active_bit = 0b10 };
 
 var g_key_states: [Key.num_keys]u8 = undefined;
-var testvar: i32 = c.SDL_SCANCODE_UP;
-var g_key_map: [Key.num_keys]i32 = {
-    //     c.SDL_SCANCODE_UP,
-    //     c.SDL_SCANCODE_DOWN,
-    //     c.SDL_SCANCODE_LEFT,
-    //     c.SDL_SCANCODE_RIGHT,
-    //     c.SDL_SCANCODE_RETURN,
+
+const g_key_map = [Key.num_keys]i32{
+    c.SDL_SCANCODE_UP,
+    c.SDL_SCANCODE_DOWN,
+    c.SDL_SCANCODE_LEFT,
+    c.SDL_SCANCODE_RIGHT,
+    c.SDL_SCANCODE_RETURN,
 };
 
 var p = c.SDL_Point{ .x = 0, .y = 0 };
