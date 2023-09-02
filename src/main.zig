@@ -3,11 +3,9 @@ const c = @cImport({
     @cInclude("SDL2/SDL.h");
 });
 
-const Key = enum { up, down, left, right, confirm, num_keys };
-
 const Dir = enum(u32) {
-    vbit = 0b0010, //“vertical”??
-    hbit = 0b1000, //“horizontal”??
+    vbit = 0b0010,
+    hbit = 0b1000,
     up = 0b0010,
     down = 0b0011,
     left = 0b1000,
@@ -26,11 +24,16 @@ const Dir = enum(u32) {
     rightdown = 0b1100_0011,
 };
 
-const KeyState = enum(u8) { off = 0b00, up = 0b01, pressed = 0b10, held = 0b11, active_bit = 0b10 };
+// Active Bit 0b10
+const KeyState = enum(u2) { off = 0b00, up = 0b01, pressed = 0b10, held = 0b11 };
 
-var g_key_states: [Key.num_keys]u8 = undefined;
+const Key = enum { up, down, left, right, confirm };
 
-const g_key_map = [Key.num_keys]i32{
+const k_keys_num: usize = @typeInfo(Key).Enum.fields.len;
+
+var g_key_states: [k_keys_num]KeyState = undefined;
+
+const g_key_map = [k_keys_num]usize{
     c.SDL_SCANCODE_UP,
     c.SDL_SCANCODE_DOWN,
     c.SDL_SCANCODE_LEFT,
@@ -49,6 +52,25 @@ var g_texture: ?*c.SDL_Texture = null;
 
 var g_quit: bool = false;
 
+fn key_state_update(i: usize, is_down: bool) void {
+    switch (g_key_states[i]) {
+        KeyState.held, KeyState.pressed => {
+            if (is_down) {
+                g_key_states[i] = KeyState.held;
+            } else {
+                g_key_states[i] = KeyState.up;
+            }
+        },
+        KeyState.off, KeyState.up => {
+            if (is_down) {
+                g_key_states[i] = KeyState.pressed;
+            } else {
+                g_key_states[i] = KeyState.off;
+            }
+        },
+    }
+}
+
 fn events_process() void {
     c.SDL_PumpEvents();
     var event: c.SDL_Event = undefined;
@@ -56,9 +78,33 @@ fn events_process() void {
         switch (event.type) {
             c.SDL_QUIT => {
                 g_quit = true;
+                break;
             },
-            else => {},
+            c.SDL_WINDOWEVENT => {
+                if (event.window.event == c.SDL_WINDOWEVENT_CLOSE) {
+                    g_quit = true;
+                }
+                break;
+            },
+            else => {
+                break;
+            },
         }
+    }
+
+    var keys_num: i32 = undefined;
+    //const key_state: [*c]const u8 = c.SDL_GetKeyboardState(&keys_num);
+    const key_state = c.SDL_GetKeyboardState(&keys_num);
+
+    for (0..k_keys_num) |i| {
+        const scancode: usize = g_key_map[i];
+        var is_down: bool = false;
+        //if (scancode and scancode < keys_num) {
+        if (scancode < keys_num) {
+            //is_down |= (0 != key_state[scancode]);
+            is_down = is_down or (0 != key_state[scancode]);
+        }
+        key_state_update(i, is_down);
     }
 }
 
