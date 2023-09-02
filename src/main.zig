@@ -52,6 +52,17 @@ var g_texture: ?*c.SDL_Texture = null;
 
 var g_quit: bool = false;
 
+fn key_get(i: Key) bool {
+    switch (g_key_states[@intFromEnum(i)]) {
+        KeyState.held, KeyState.pressed => {
+            return true;
+        },
+        else => {
+            return false;
+        },
+    }
+}
+
 fn key_state_update(i: usize, is_down: bool) void {
     switch (g_key_states[i]) {
         KeyState.held, KeyState.pressed => {
@@ -108,7 +119,11 @@ fn events_process() void {
     }
 }
 
-fn game_update() void {}
+fn game_update() void {
+    if (key_get(Key.down)) {
+        p.y += 1;
+    }
+}
 
 fn game_draw() void {
     if (c.SDL_SetRenderDrawColor(g_renderer, 255, 255, 255, 255) != 0) {
