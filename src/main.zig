@@ -3,6 +3,8 @@ const c = @cImport({
     @cInclude("SDL2/SDL.h");
 });
 
+var p = c.SDL_Point{ .x = 0, .y = 0 };
+
 const k_screen_width: i32 = 320;
 const k_screen_height: i32 = 240;
 
@@ -27,10 +29,26 @@ fn events_process() void {
 
 fn game_update() void {}
 
-fn game_draw() void {}
+fn game_draw() void {
+    if (c.SDL_SetRenderDrawColor(g_renderer, 255, 255, 255, 255) != 0) {
+        c.SDL_Log("Unable to set color for the rendering target: %s", c.SDL_GetError());
+        //XXX: I don't yet understand how to handle return errors that aren't in main().
+        //return error.SDLSetRenderDrawColorFailed;
+    }
+    if (c.SDL_RenderDrawLine(g_renderer, p.x, p.y, 160, 120) != 0) {
+        c.SDL_Log("Unable to draw line on the rendering target: %s", c.SDL_GetError());
+        //XXX: I don't yet understand how to handle return errors that aren't in main().
+        //return error.SDLRenderDrawLineFailed;
+    }
+}
 
 fn frame_present() void {
     c.SDL_RenderPresent(g_renderer);
+    if (c.SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255) != 0) {
+        c.SDL_Log("Unable to set color for the rendering target: %s", c.SDL_GetError());
+        //XXX: I don't yet understand how to handle return errors that aren't in main().
+        //return error.SDLSetRenderDrawColorFailed;
+    }
     if (c.SDL_RenderClear(g_renderer) != 0) {
         c.SDL_Log("Unable to clear the rendering target: %s", c.SDL_GetError());
         g_quit = true;
